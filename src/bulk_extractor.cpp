@@ -757,33 +757,12 @@ void stat_callback(void *user,const std::string &name,uint64_t calls,double seco
 /********************
  *** find support ***
  ********************/
+struct FindOptsStruct {
+  vector<string> Files;     // accumulates pattern files
+  vector<string> Patterns;  // accumulates cmdline patterns
+};
 
-regex_list find_list;
-void add_find_pattern(const string &pat)
-{
-    find_list.add_regex("(" + pat + ")"); // make a group
-}
-
-
-void process_find_file(const char *findfile)
-{
-    ifstream in;
-
-    in.open(findfile,ifstream::in);
-    if(!in.good()){
-	err(1,"Cannot open %s",findfile);
-    }
-    while(!in.eof()){
-	string line;
-	getline(in,line);
-	truncate_at(line,'\r');         // remove a '\r' if present
-	if(line.size()>0){
-	    if(line[0]=='#') continue;	// ignore lines that begin with a comment character
-	    add_find_pattern(line);
-	}
-    }
-}
-
+FindOptsStruct FindOpts;
 
 
 int main(int argc,char **argv)
@@ -855,8 +834,8 @@ int main(int argc,char **argv)
 	case 'e':
 	    be13::plugin::scanners_enable(optarg);
 	    break;
-	case 'F': process_find_file(optarg); break;
-	case 'f': add_find_pattern(optarg); break;
+	case 'F': FindOpts.Files.push_back(optarg); break;
+	case 'f': FindOpts.Patterns.push_back(optarg); break;
 	case 'G': cfg.opt_pagesize = scaled_stoi(optarg); break;
 	case 'g': cfg.opt_marginsize = scaled_stoi(optarg); break;
 	case 'j': cfg.num_threads = atoi(optarg); break;
