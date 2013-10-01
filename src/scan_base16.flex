@@ -89,7 +89,7 @@ UNICODE		([[:print:][:space:]]+)
 
 %%
 
-[0-9A-F]{2}([ \n]{0,2}[0-9A-F]{2}){5,1024}	{
+[0-9A-F]{2}(([ \x0A]|\x0D\x0A){0,2}[0-9A-F]{2}){5,1024}	{
     /* hex with junk before it.
      * {0,4} means we have 0-4 space characters
      * {6,65536}  means 6-65536 characters
