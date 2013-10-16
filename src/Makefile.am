@@ -88,6 +88,8 @@ bulk_extractor_nomain = \
 	dig.h \
 	image_process.cpp \
 	image_process.h \
+	findopts.h \
+	findopts.cpp \
 	pattern_scanner.cpp \
 	pattern_scanner.h \
 	pattern_scanner_utils.cpp \

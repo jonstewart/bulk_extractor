@@ -28,10 +28,6 @@
  *** COMMAND LINE OPTIONS
  ****************************************************************/
 
-/* Global find options and the find_list */
-
-FindOptsStruct FindOpts;         // singleton
-regex_list     find_list;
 
 /* global alert_list and stop_list
  * These should probably become static class variables
@@ -96,5 +92,3 @@ scanner_t *scanners_builtin[] = {
     scan_xor,
     scan_sqlite,
     0};
-
-

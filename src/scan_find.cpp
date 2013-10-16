@@ -7,29 +7,37 @@
 #include "histogram.h"
 
 #include "bulk_extractor.h"             // for find_list
+#include "findopts.h"
 
-static void add_find_pattern(const std::string &pat)
-{
-    find_list.add_regex("(" + pat + ")"); // make a group
-}
+using namespace std;
 
-static void process_find_file(const char *findfile)
-{
-    std::ifstream in;
-    
-    in.open(findfile,std::ifstream::in);
-    if(!in.good()) {
-        err(1,"Cannot open %s",findfile);
+namespace { // anonymous namespace hides symbols from other source files
+
+    regex_list find_list; // no longer extern
+
+    void add_find_pattern(const std::string &pat)
+    {
+        find_list.add_regex("(" + pat + ")"); // make a group
     }
-    while(!in.eof()){
-        std::string line;
-        getline(in,line);
-        truncate_at(line,'\r');         // remove a '\r' if present
-        if(line.size()>0) {
-            if(line[0]=='#') continue;  // ignore lines that begin with a comment character
-            add_find_pattern(line);
+
+    void process_find_file(const char *findfile)
+    {
+        std::ifstream in;
+        
+        in.open(findfile,std::ifstream::in);
+        if(!in.good()) {
+            err(1,"Cannot open %s",findfile);
         }
-    }
+        while(!in.eof()){
+            std::string line;
+            getline(in,line);
+            truncate_at(line,'\r');         // remove a '\r' if present
+            if(line.size()>0) {
+                if(line[0]=='#') continue;  // ignore lines that begin with a comment character
+                add_find_pattern(line);
+            }
+        }
+    }    
 }
 
 
@@ -39,23 +47,24 @@ void scan_find(const class scanner_params &sp,const recursion_control_block &rcb
     assert(sp.sp_version==scanner_params::CURRENT_SP_VERSION);      
     if(sp.phase==scanner_params::PHASE_STARTUP) {
         assert(sp.info->si_version==scanner_info::CURRENT_SI_VERSION);
-  	sp.info->name		= "find";
+  	    sp.info->name		= "find";
         sp.info->author         = "Simson Garfinkel";
         sp.info->description    = "Simple search for patterns";
         sp.info->scanner_version= "1.1";
         sp.info->flags		= scanner_info::SCANNER_FIND_SCANNER;
         sp.info->feature_names.insert("find");
-  	sp.info->histogram_defs.insert(histogram_def("find","","histogram",HistogramMaker::FLAG_LOWERCASE));
+      	sp.info->histogram_defs.insert(histogram_def("find","","histogram",HistogramMaker::FLAG_LOWERCASE));
         return;
     }
     if(sp.phase==scanner_params::PHASE_SHUTDOWN) return;
 
     if (scanner_params::PHASE_INIT == sp.phase) {
-        for (std::vector<std::string>::const_iterator itr(FindOpts.Patterns.begin()); itr != FindOpts.Patterns.end(); ++itr) {
-            add_find_pattern(*itr);
+        FindOpts& opts(FindOpts::get());
+        for (vector<string>::const_iterator itr(opts.Patterns.begin()); itr != opts.Patterns.end(); ++itr) {
+          add_find_pattern(*itr);
         }
-        for (std::vector<std::string>::const_iterator itr(FindOpts.Files.begin()); itr != FindOpts.Files.end(); ++itr) {
-            process_find_file(itr->c_str());
+        for (vector<string>::const_iterator itr(opts.Files.begin()); itr != opts.Files.end(); ++itr) {
+          process_find_file(itr->c_str());
         }
     }
 

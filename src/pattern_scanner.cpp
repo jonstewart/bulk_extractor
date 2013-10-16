@@ -85,7 +85,7 @@ bool LightgrepController::addScanner(PatternScanner& scanner) {
   return true;
 }
 
-bool LightgrepController::addUserPatterns(PatternScanner& scanner, CallbackFnType* callbackPtr, const FindOptsStruct& user) {
+bool LightgrepController::addUserPatterns(PatternScanner& scanner, CallbackFnType* callbackPtr, const FindOpts& user) {
   unsigned int patBegin = lg_pattern_map_size(PatternInfo),
                patEnd = 0;
 
@@ -104,7 +104,7 @@ bool LightgrepController::addUserPatterns(PatternScanner& scanner, CallbackFnTyp
     string contents = string(istreambuf_iterator<char>(file), istreambuf_iterator<char>());
 
     const char* contentsCStr = contents.c_str();
-    if (lg_add_pattern_list(Fsm, PatternInfo, contentsCStr, DefaultEncodingsCStrings, 2, &opts, &err) < 0) {
+    if (lg_add_pattern_list(Fsm, PatternInfo, contentsCStr, itr->c_str(), DefaultEncodingsCStrings, 2, &opts, &err) < 0) {
 
       vector<string> lines;
       istringstream input(contents);
